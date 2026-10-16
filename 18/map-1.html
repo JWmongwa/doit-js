@@ -19,6 +19,88 @@
 </head>
 <body>
   <h1>위치 표시하기</h1>
-  
+  <div id="map" style="width:100%;height:550px;"></div>
+
+  <script type="text/javascript" src="//dapi.kakao.com/v2/maps/sdk.js?appkey=-&libraries=clusterer"></script>
+  <script>
+    //클러스터 사용시에는 libraries를 꼭 붙여줘야함 -> 필요 라이브러리가 있는 경우에
+    //실제로 좌표 작용해보기
+    const lat = 37.55684;
+    const lng = 126.91404
+    var mapContainer = document.getElementById('map'), // 지도를 표시할 div 
+        mapOption = { 
+            center: new kakao.maps.LatLng(lat, lng), // 지도의 중심좌표
+            level: 14 // 지도의 확대 레벨
+        };
+
+    var map = new kakao.maps.Map(mapContainer, mapOption);
+
+    var clusterer = new kakao.maps.MarkerClusterer({
+        map: map, // 마커들을 클러스터로 관리하고 표시할 지도 객체 
+        averageCenter: true, // 클러스터에 포함된 마커들의 평균 위치를 클러스터 마커 위치로 설정 
+        minLevel: 10 // 클러스터 할 최소 지도 레벨 
+    });
+
+    // 지도를 표시할 div와  지도 옵션으로  지도를 생성합니다
+    
+
+    //사용할 마커배열
+    var positions = [
+      {
+        title:'<div style="padding:5px,font-size:0.9rem;">이지스퍼블리싱</div>',
+        latlng:new kakao.maps.LatLng(37.55684, 126.91404)
+      },
+      {
+        title:'<div style="padding:5px,font-size:0.9rem;">테스트1</div>',
+        latlng:new kakao.maps.LatLng(37.55834, 126.91302)
+      },
+      {
+        title:'<div style="padding:5px,font-size:0.9rem;">테스트2</div>',
+        latlng:new kakao.maps.LatLng(37.55483, 126.91276)
+      },
+      {
+        title:'<div style="padding:5px,font-size:0.9rem;">테스트3</div>',
+        latlng:new kakao.maps.LatLng(37.55744, 126.91860)
+      }
+    ]
+    
+    var markers = [];
+
+    for(let i=0; i<positions.length; i++){
+      //Marker 객체 생성
+      var marker = new kakao.maps.Marker({
+        map : map,
+        position : positions[i].latlng
+      });
+
+      markers.push(marker);
+
+      //Marker에 사용될 인포윈도우 객체 생성
+      var infowindow = new kakao.maps.InfoWindow({
+        content : positions[i].title
+      });
+
+      //마커 이벤트 + 클로저 생성(안생성하면 마지막 마커에만 이벤트 등록됨)
+      kakao.maps.event.addListener(marker, 'mouseover', makeOverListener(map, marker, infowindow));
+      kakao.maps.event.addListener(marker, 'mouseout', makeOutListener(infowindow));
+    }
+
+    // 인포윈도우를 표시하는 클로저를 만드는 함수입니다 
+    function makeOverListener(map, marker, infowindow) {
+        return function() {
+            infowindow.open(map, marker);
+        };
+    }
+
+    // 인포윈도우를 닫는 클로저를 만드는 함수입니다 
+    function makeOutListener(infowindow) {
+        return function() {
+            infowindow.close();
+        };
+    }
+
+    clusterer.addMarkers(markers);
+ 
+  </script>
 </body>
-</html>
+</html> 
